@@ -15,11 +15,14 @@ namespace Mordor {
             this.load.setPreloadSprite(this.preloadBar);
 
             //  Load our actual games assets
-//            this.load.image("titlepage", "assets/titlepage.jpg");
-//            this.load.image("logo", "assets/logo.png");
-//            this.load.audio("music", "assets/title.mp3", true);
-//            this.load.spritesheet("simon", "assets/simon.png", 58, 96, 5);
-//            this.load.image("level1", "assets/level1.png");
+            this.load.tilemap('level1', 'assets/level1.json', null, Phaser.Tilemap.TILED_JSON);
+
+            // Next we load the tileset. This is just an image, loaded in via the normal way we load images:
+            this.load.image('Floortiles', 'assets/floortiles.png');
+            
+            // 
+            this.load.spritesheet('player', 'assets/player.png', 32, 16, 3);
+            this.load.image('broom','assets/broom.png');
         }
 
         create() {

@@ -73,11 +73,12 @@ var Mordor;
             this.preloadBar = this.add.sprite(200, 250, "preloadBar");
             this.load.setPreloadSprite(this.preloadBar);
             //  Load our actual games assets
-            //            this.load.image("titlepage", "assets/titlepage.jpg");
-            //            this.load.image("logo", "assets/logo.png");
-            //            this.load.audio("music", "assets/title.mp3", true);
-            //            this.load.spritesheet("simon", "assets/simon.png", 58, 96, 5);
-            //            this.load.image("level1", "assets/level1.png");
+            this.load.tilemap('level1', 'assets/level1.json', null, Phaser.Tilemap.TILED_JSON);
+            // Next we load the tileset. This is just an image, loaded in via the normal way we load images:
+            this.load.image('Floortiles', 'assets/floortiles.png');
+            // 
+            this.load.spritesheet('player', 'assets/player.png', 32, 16, 3);
+            this.load.image('broom', 'assets/broom.png');
         };
         Preloader.prototype.create = function () {
             var tween = this.add.tween(this.preloadBar).to({ alpha: 0 }, 1000, Phaser.Easing.Linear.None, true);
@@ -123,10 +124,16 @@ var Mordor;
             var height = 600;
             this.physics.startSystem(Phaser.Physics.ARCADE);
             this.stage.backgroundColor = "#000000";
-            //  Modify the world and camera bounds
-            this.world.setBounds(0, 0, width, height);
+            this.map = this.add.tilemap('level1');
+            this.map.addTilesetImage('Floortiles');
+            this.layer = this.map.createLayer('Ground');
+            this.layer.resizeWorld();
+            this.camera.y = this.world.height;
+            this.player = new Mordor.Player(this.game, 300, this.world.height - 100);
+            this.camera.follow(this.player);
         };
         Level1.prototype.update = function () {
+            //            this.camera.y -= 0.04;
         };
         Level1.prototype.render = function () {
             this.game.debug.cameraInfo(this.camera, 32, 32);
@@ -136,11 +143,84 @@ var Mordor;
     Mordor.Level1 = Level1;
 })(Mordor || (Mordor = {}));
 /// <reference path="typescript/phaser.d.ts" />
+// python -m SimpleHTTPServer
+var Mordor;
+(function (Mordor) {
+    var Player = (function (_super) {
+        __extends(Player, _super);
+        function Player(game, x, y) {
+            _super.call(this, game, x, y, "player", 0);
+            this.anchor.setTo(0.5, 0.5);
+            this.scale = new Phaser.Point(3.0, 3.0);
+            this.animations.add('walk', [1, 0, 2, 0], 4, true);
+            this.animations.add('broom', [1, 0], 8, true);
+            this.broom = this.game.make.sprite(10, -4, 'broom');
+            this.broom.anchor.setTo(0.5, 1.0);
+            this.addChild(this.broom);
+            game.add.existing(this);
+            game.physics.enable(this);
+            this.body.collideWorldBounds = true;
+        }
+        Player.prototype.update = function () {
+            this.body.velocity.x = 0;
+            this.body.velocity.y = 0;
+            if (!this.animations.currentAnim.isPlaying) {
+                this.animations.frame = 0;
+            }
+            switch (this.animations.frame) {
+                case 1:
+                    this.broom.y = 0;
+                    break;
+                case 2:
+                    this.broom.y = -8;
+                    break;
+                default:
+                    this.broom.y = -4;
+                    break;
+            }
+            if (this.game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)) {
+                this.animations.stop("walk");
+                this.animations.play("broom");
+                return;
+            }
+            else {
+                this.animations.stop("broom");
+            }
+            if (this.game.input.keyboard.isDown(Phaser.Keyboard.LEFT)) {
+                this.body.velocity.x = -150;
+                this.animations.play("walk");
+            }
+            else if (this.game.input.keyboard.isDown(Phaser.Keyboard.RIGHT)) {
+                this.body.velocity.x = 150;
+                this.animations.play("walk");
+            }
+            if (this.game.input.keyboard.isDown(Phaser.Keyboard.UP)) {
+                this.body.velocity.y = -150;
+                this.animations.play("walk");
+            }
+            else if (this.game.input.keyboard.isDown(Phaser.Keyboard.DOWN)) {
+                this.body.velocity.y = 150;
+                this.animations.play("walk");
+            }
+            if (this.body.velocity.x === 0 && this.body.velocity.y === 0) {
+                this.animations.stop("walk");
+                this.animations.frame = 0;
+            }
+            else {
+                this.rotation = 90 * (Math.PI / 180) + Math.atan2(this.body.velocity.y, this.body.velocity.x);
+            }
+        };
+        return Player;
+    }(Phaser.Sprite));
+    Mordor.Player = Player;
+})(Mordor || (Mordor = {}));
+/// <reference path="typescript/phaser.d.ts" />
 /// <reference path="Game.ts" />
 /// <reference path="Boot.ts" />
 /// <reference path="Preloader.ts" />
 /// <reference path="MainMenu.ts" />
 /// <reference path="Level1.ts" />
+/// <reference path="Player.ts" />
 // python -m SimpleHTTPServer
 window.onload = function () {
     var game = new Mordor.Game();
