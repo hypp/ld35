@@ -35,6 +35,8 @@ namespace Mordor {
         update() {
             this.body.velocity.x = 0;
             this.body.velocity.y = 0;
+            
+            this.game.world.setBounds(0,0,800,this.game.camera.y+600);
 
             if (!this.animations.currentAnim.isPlaying) {
                 this.animations.frame = 0;
@@ -64,28 +66,29 @@ namespace Mordor {
             
             if (this.game.input.keyboard.isDown(Phaser.Keyboard.LEFT)) {
                 this.body.velocity.x = -150;
-                this.animations.play("walk");
             }
             else if (this.game.input.keyboard.isDown(Phaser.Keyboard.RIGHT)) {
                 this.body.velocity.x = 150;
-                this.animations.play("walk");
             }
-            
+                        
             if (this.game.input.keyboard.isDown(Phaser.Keyboard.UP)) {
 
                 this.body.velocity.y = -150;
                 this.animations.play("walk");
             }
             else if (this.game.input.keyboard.isDown(Phaser.Keyboard.DOWN)) {
+                if (this.body.y < this.game.camera.bounds.bottom) {
+                    this.body.velocity.y = 150;
+                    this.animations.play("walk");                    
+                }
 
-                this.body.velocity.y = 150;
-                this.animations.play("walk");
             }
             
             if (this.body.velocity.x === 0 && this.body.velocity.y === 0) {
                 this.animations.stop("walk");
                 this.animations.frame = 0;
             } else {
+                this.animations.play("walk");
                 this.rotation = 90 * (Math.PI / 180) + Math.atan2(this.body.velocity.y, this.body.velocity.x);
             }
         }

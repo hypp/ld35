@@ -31,12 +31,14 @@ namespace Mordor {
             this.group = this.add.physicsGroup(Phaser.Physics.ARCADE);
             
             this.player = new Mordor.Player(this.game, 300, this.world.height - 100);
-            this.camera.follow(this.player);
+            this.camera.follow(this.player, Phaser.Camera.FOLLOW_LOCKON);
          
             let privateParts = new Mordor.Soldier(this.game, -100, this.world.height - 200, this.group);
             privateParts.setGoal(this.world.width+100, this.world.height - 200);
             let privateDetective = new Mordor.Soldier(this.game, this.world.width / 2, this.world.height + 100, this.group);
             privateDetective.setGoal(this.world.width / 2, 0 - 100);
+            let privateEye = new Mordor.Soldier(this.game, this.world.width + 100, this.world.height / 2, this.group);
+            privateEye.setGoal(0 - 100, this.world.height / 2 - 100);
                         
             this.score = 0;
             this.scoreText = this.add.text(200, 500, 'score: 0', { fontSize: '32px', fill: '#000' });
