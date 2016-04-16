@@ -79,6 +79,7 @@ var Mordor;
             // 
             this.load.spritesheet('player', 'assets/player.png', 32, 16, 3);
             this.load.image('broom', 'assets/broom.png');
+            this.load.spritesheet('shoeprints', 'assets/shoeprints.png', 32, 16, 2);
         };
         Preloader.prototype.create = function () {
             var tween = this.add.tween(this.preloadBar).to({ alpha: 0 }, 1000, Phaser.Easing.Linear.None, true);
@@ -101,6 +102,21 @@ var Mordor;
             _super.apply(this, arguments);
         }
         MainMenu.prototype.create = function () {
+            var y = 32;
+            this.add.text(32, y, 'NATO SHAPE http://www.shape.nato.int/', { fontSize: '32px', fill: '#88aa77' });
+            y += 36;
+            this.add.text(32, y, 'Supreme Headquartes Allied Powers Europe', { fontSize: '32px', fill: '#88aa77' });
+            y += 72;
+            this.add.text(32, y, '- Welcome. I am General Error. Your new job starts today.', { fontSize: '16px', fill: '#88aa77' });
+            y += 20;
+            this.add.text(32, y, '- Every man and woman must to his or her part in this time of crises.', { fontSize: '16px', fill: '#88aa77' });
+            y += 20;
+            this.add.text(32, y, '- We appreciate that you are doing this for your country.', { fontSize: '16px', fill: '#88aa77' });
+            y += 40;
+            this.add.text(32, y, '- Time for your first shift. Your first shapeshift, as I like to call it!', { fontSize: '24px', fill: '#88aa77' });
+            y += 44;
+            this.add.text(128, y, 'Click to proceed.', { fontSize: '24px', fill: '#88aa77' });
+            this.add.text(32, 600 - 16, 'A game for Ludum Dare 35 by Mathias Olsson.', { fontSize: '8px', fill: '#88aa77' });
             this.input.onDown.addOnce(this.startGame, this);
         };
         MainMenu.prototype.startGame = function () {
@@ -129,14 +145,70 @@ var Mordor;
             this.layer = this.map.createLayer('Ground');
             this.layer.resizeWorld();
             this.camera.y = this.world.height;
+            this.group = this.add.physicsGroup(Phaser.Physics.ARCADE);
             this.player = new Mordor.Player(this.game, 300, this.world.height - 100);
             this.camera.follow(this.player);
+            var privateParts = new Mordor.Soldier(this.game, -100, this.world.height - 200, this.group);
+            privateParts.setGoal(this.world.width + 100, this.world.height - 200);
+            var privateDetective = new Mordor.Soldier(this.game, this.world.width / 2, this.world.height + 100, this.group);
+            privateDetective.setGoal(this.world.width / 2, 0 - 100);
+            this.score = 0;
+            this.scoreText = this.add.text(200, 500, 'score: 0', { fontSize: '32px', fill: '#000' });
+            this.scoreText.fixedToCamera = true;
+            this.scoreText.cameraOffset.setTo(50, height - 50);
+            var introText = this.add.text(width / 2, this.world.height - height / 2, 'Level 1 - The Hangar', { fontSize: '32px', fill: '#eeeeee' });
+            introText.anchor = new Phaser.Point(0.5, 0.5);
+            introText.alpha = 0.0;
+            var tweenIn = this.game.add.tween(introText).to({ alpha: 1.0 }, 1500, Phaser.Easing.Linear.None);
+            var tweenOut = this.game.add.tween(introText).to({ alpha: 0.0 }, 1500, Phaser.Easing.Linear.None);
+            tweenIn.chain(tweenOut);
+            tweenIn.start();
         };
         Level1.prototype.update = function () {
-            //            this.camera.y -= 0.04;
+            if (this.physics.arcade.overlap(this.player.broom, this.group, this.collisionHandler, this.processHandler, this)) {
+            }
+            if (this.physics.arcade.overlap(this.player, this.group, this.collisionHandler, this.processHandler, this)) {
+            }
         };
         Level1.prototype.render = function () {
-            this.game.debug.cameraInfo(this.camera, 32, 32);
+            /*            this.game.debug.cameraInfo(this.camera, 32, 32);
+                        this.game.debug.body(this.player.broom);
+                        this.game.debug.body(this.player);
+                        this.group.forEach((item) => {this.game.debug.body(item)}, this);
+            */
+        };
+        Level1.prototype.processHandler = function (broom, shoeprint) {
+            if (!this.player.isCleaning) {
+                return false;
+            }
+            var dx = this.player.x + broom.x - shoeprint.x;
+            var dy = this.player.y + broom.y - shoeprint.y;
+            var distance = dx * dx + dy * dy;
+            if (distance > 50 * 50) {
+                return false;
+            }
+            else {
+                return true;
+            }
+        };
+        Level1.prototype.collisionHandler = function (broom, shoeprint) {
+            if (this.player.isCleaning) {
+                if (shoeprint.alpha > 0.1) {
+                    shoeprint.alpha -= 0.1;
+                }
+                else {
+                    shoeprint.kill();
+                    this.score += 10;
+                    this.scoreText.text = 'Score: ' + this.score;
+                }
+            }
+        };
+        Level1.prototype.soldierOut = function (soldier) {
+            //  Move the alien to the top of the screen again
+            // alien.reset(alien.x, -32);
+            //  And give it a new random velocity
+            //  alien.body.velocity.y = 50 + Math.random() * 200;
+            var b = 42;
         };
         return Level1;
     }(Phaser.State));
@@ -156,12 +228,17 @@ var Mordor;
             this.animations.add('broom', [1, 0], 8, true);
             this.broom = this.game.make.sprite(10, -4, 'broom');
             this.broom.anchor.setTo(0.5, 1.0);
+            //     this.broom.scale = new Phaser.Point(3.0, 3.0);
             this.broom.rotation = 15 * (Math.PI / 180);
             game.add.tween(this.broom).to({ rotation: -15 * (Math.PI / 180) }, 2000, Phaser.Easing.Quadratic.InOut, true, 0, -1, true);
             this.addChild(this.broom);
+            game.physics.enable(this.broom);
+            //      this.broom.body.setSize(8,16,0,0);
+            this.isCleaning = false;
             game.add.existing(this);
             game.physics.enable(this);
             this.body.collideWorldBounds = true;
+            this.body.setSize(32, 32, 0, -16);
         }
         Player.prototype.update = function () {
             this.body.velocity.x = 0;
@@ -183,10 +260,12 @@ var Mordor;
             if (this.game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)) {
                 this.animations.stop("walk");
                 this.animations.play("broom");
+                this.isCleaning = true;
                 return;
             }
             else {
                 this.animations.stop("broom");
+                this.isCleaning = false;
             }
             if (this.game.input.keyboard.isDown(Phaser.Keyboard.LEFT)) {
                 this.body.velocity.x = -150;
@@ -217,12 +296,79 @@ var Mordor;
     Mordor.Player = Player;
 })(Mordor || (Mordor = {}));
 /// <reference path="typescript/phaser.d.ts" />
+// python -m SimpleHTTPServer
+var Mordor;
+(function (Mordor) {
+    var Soldier = (function (_super) {
+        __extends(Soldier, _super);
+        function Soldier(game, x, y, group) {
+            _super.call(this, game, x, y, "player", 0);
+            this.shoeprintGroup = group;
+            this.anchor.setTo(0.5, 0.5);
+            this.scale = new Phaser.Point(3.0, 3.0);
+            this.animations.add('walk', [1, 0, 2, 0], 4, true);
+            this.animations.play('walk');
+            this.prevFrame = -1;
+            game.add.existing(this);
+            game.physics.enable(this);
+        }
+        Soldier.prototype.createShoeprint = function (x, y, name, frame) {
+            var shoeprint = this.game.add.sprite(x, y, name, frame);
+            shoeprint.anchor.setTo(0.5, 0.5);
+            shoeprint.scale = new Phaser.Point(3.0, 3.0);
+            shoeprint.rotation = this.rotation;
+            shoeprint.moveDown();
+            shoeprint.moveDown();
+            this.game.physics.enable(shoeprint);
+            this.shoeprintGroup.add(shoeprint);
+            return shoeprint;
+        };
+        Soldier.prototype.setGoal = function (x, y) {
+            this.goalX = x;
+            this.goalY = y;
+            var dx = this.x - x;
+            var dy = this.y - y;
+            var distance = Math.sqrt(dx * dx + dy * dy);
+            var time = (distance / 150) * 1000;
+            var tween = this.game.add.tween(this).to({ x: x, y: y }, time, Phaser.Easing.Linear.None, true);
+        };
+        Soldier.prototype.inThisWorld = function () {
+            if (this.x > this.game.world.width || this.x < 0 || this.y > this.game.world.height || this.y < 0) {
+                return false;
+            }
+            return true;
+        };
+        Soldier.prototype.update = function () {
+            var dx = this.x - this.goalX;
+            var dy = this.y - this.goalY;
+            this.rotation = -90 * (Math.PI / 180) + Math.atan2(dy, dx);
+            if (this.inThisWorld()) {
+                if (this.animations.frame !== this.prevFrame) {
+                    this.prevFrame = this.animations.frame;
+                    if (this.animations.frame === 1) {
+                        var shoeprint = this.createShoeprint(this.x, this.y, 'shoeprints', 0);
+                    }
+                    else if (this.animations.frame === 2) {
+                        var shoeprint = this.createShoeprint(this.x, this.y, 'shoeprints', 1);
+                    }
+                }
+            }
+            else {
+                var b = 42;
+            }
+        };
+        return Soldier;
+    }(Phaser.Sprite));
+    Mordor.Soldier = Soldier;
+})(Mordor || (Mordor = {}));
+/// <reference path="typescript/phaser.d.ts" />
 /// <reference path="Game.ts" />
 /// <reference path="Boot.ts" />
 /// <reference path="Preloader.ts" />
 /// <reference path="MainMenu.ts" />
 /// <reference path="Level1.ts" />
 /// <reference path="Player.ts" />
+/// <reference path="Soldier.ts" />
 // python -m SimpleHTTPServer
 window.onload = function () {
     var game = new Mordor.Game();
