@@ -156,6 +156,8 @@ var Mordor;
             this.animations.add('broom', [1, 0], 8, true);
             this.broom = this.game.make.sprite(10, -4, 'broom');
             this.broom.anchor.setTo(0.5, 1.0);
+            this.broom.rotation = 15 * (Math.PI / 180);
+            game.add.tween(this.broom).to({ rotation: -15 * (Math.PI / 180) }, 2000, Phaser.Easing.Quadratic.InOut, true, 0, -1, true);
             this.addChild(this.broom);
             game.add.existing(this);
             game.physics.enable(this);
