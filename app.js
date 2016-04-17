@@ -11,12 +11,33 @@ var Mordor;
         __extends(Game, _super);
         function Game() {
             _super.call(this, 800, 600, Phaser.AUTO, "content", null);
+            this.score = 0;
             this.state.add("Boot", Mordor.Boot, false);
             this.state.add("Preloader", Mordor.Preloader, false);
             this.state.add("MainMenu", Mordor.MainMenu, false);
             this.state.add("Level1", Mordor.Level1, false);
             this.state.start("Boot");
         }
+        Game.prototype.rankFromScore = function (score) {
+            var rank = 0;
+            if (score < 500) {
+                // Private
+                rank = 0;
+            }
+            else if (score < 1000) {
+                // general1
+                rank = 1;
+            }
+            else if (score < 1500) {
+                // general2
+                rank = 2;
+            }
+            else {
+                // generalerror
+                rank = 3;
+            }
+            return rank;
+        };
         return Game;
     }(Phaser.Game));
     Mordor.Game = Game;
@@ -84,6 +105,7 @@ var Mordor;
             this.load.spritesheet('player', 'assets/player.png', 32, 16, 3);
             this.load.image('broom', 'assets/broom.png');
             this.load.spritesheet('shoeprints', 'assets/shoeprints.png', 32, 16, 2);
+            this.load.audio('music', 'assets/music.wav', true);
         };
         Preloader.prototype.create = function () {
             var tween = this.add.tween(this.preloadBar).to({ alpha: 0 }, 1000, Phaser.Easing.Linear.None, true);
@@ -106,6 +128,9 @@ var Mordor;
             _super.apply(this, arguments);
         }
         MainMenu.prototype.create = function () {
+            //    this.physics.startSystem(Phaser.Physics.ARCADE);
+            this.stage.backgroundColor = "#336633";
+            this.group = this.add.physicsGroup(Phaser.Physics.ARCADE);
             var y = 32;
             this.add.text(32, y, 'NATO SHAPE http://www.shape.nato.int/', { fontSize: '32px', fill: '#88aa77' });
             y += 36;
@@ -113,15 +138,53 @@ var Mordor;
             y += 72;
             this.add.text(32, y, '- Welcome. I am General Error. Your new job starts today.', { fontSize: '16px', fill: '#88aa77' });
             y += 20;
-            this.add.text(32, y, '- Every man and woman must to his or her part in this time of crises.', { fontSize: '16px', fill: '#88aa77' });
+            this.add.text(32, y, '- Every man and woman must do his or her part in this time of crisis.', { fontSize: '16px', fill: '#88aa77' });
             y += 20;
-            this.add.text(32, y, '- We appreciate that you are doing this for your country.', { fontSize: '16px', fill: '#88aa77' });
+            this.add.text(32, y, '- We appreciate what you are doing for your country.', { fontSize: '16px', fill: '#88aa77' });
             y += 40;
-            this.add.text(32, y, '- Time for your first shift. Your first shapeshift, as I like to call it!', { fontSize: '24px', fill: '#88aa77' });
+            this.add.text(32, y, '- Time for your first shift at SHAPE. Your first shapeshift, as I like to call it!', { fontSize: '20px', fill: '#88aa77' });
             y += 44;
             this.add.text(128, y, 'Click to proceed.', { fontSize: '24px', fill: '#88aa77' });
             this.add.text(32, 600 - 16, 'A game for Ludum Dare 35 by Mathias Olsson.', { fontSize: '8px', fill: '#88aa77' });
             this.input.onDown.addOnce(this.startGame, this);
+            var x = this.world.width + 100;
+            y = y + 144;
+            var xGoal = 0 - 100;
+            var yGoal = y;
+            var generalError = new Mordor.Soldier(this.game, 'generalerror', x, y + this.rnd.between(-16, 16), this.group, 'General Error');
+            generalError.setGoal(xGoal, yGoal);
+            x += 112;
+            var majorFailure = new Mordor.Soldier(this.game, 'general2', x, y + this.rnd.between(-16, 16), this.group, 'Major Failure');
+            majorFailure.setGoal(xGoal, yGoal);
+            x += 112;
+            var corporalPunishment = new Mordor.Soldier(this.game, 'general1', x, y + this.rnd.between(-16, 16), this.group, 'Corporal Punishment');
+            corporalPunishment.setGoal(xGoal, yGoal);
+            x += 112;
+            var privateParts = new Mordor.Soldier(this.game, 'player', x, y + this.rnd.between(-16, 16), this.group, 'Private Parts');
+            privateParts.setGoal(xGoal, yGoal);
+            x += 112;
+            var privateDetective = new Mordor.Soldier(this.game, 'player', x, y + this.rnd.between(-16, 16), this.group, 'Private Detective');
+            privateDetective.setGoal(xGoal, yGoal);
+            x += 112;
+            var privateRoad = new Mordor.Soldier(this.game, 'player', x, y + this.rnd.between(-16, 16), this.group, 'Private Road');
+            privateRoad.setGoal(xGoal, yGoal);
+            x += 112;
+            // Setup a few random soldiers
+            var diff = 60;
+            var y1 = y - diff;
+            var y2 = y + diff;
+            for (var i = 0; i < 20; i += 2) {
+                var soldierBoy1 = new Mordor.Soldier(this.game, 'player', x, y1 + this.rnd.between(-16, 16), this.group, 'Cannon Fodder');
+                soldierBoy1.setGoal(xGoal, yGoal - diff);
+                var soldierBoy2 = new Mordor.Soldier(this.game, 'player', x, y2 + this.rnd.between(-16, 16), this.group, 'Cannon Fodder');
+                soldierBoy2.setGoal(xGoal, yGoal + diff);
+                x += 112;
+            }
+            this.music = this.add.audio('music');
+            this.music.loop = true;
+            this.music.play();
+        };
+        MainMenu.prototype.update = function () {
         };
         MainMenu.prototype.startGame = function () {
             this.game.state.start("Level1", true, false);
@@ -141,31 +204,32 @@ var Mordor;
         }
         Level1.prototype.tutorial = function () {
             var y = this.world.height - 100;
-            var tutFast = this.add.text(300, 0, 'General Error says: Move through the hanger as fast as possible', { fontSize: '16px', fill: '#eeeeee' });
+            var x = 200;
+            var tutFast = this.add.text(x, -40, 'General Error says: Move UP through the hanger as fast as possible', { fontSize: '16px', fill: '#eeeeee' });
             var fastTween = this.add.tween(tutFast).to({ y: y }, 2400, Phaser.Easing.Bounce.Out);
             y -= 250;
-            var tutArrow = this.add.text(300, 0, 'General Error says: Press arrow keys to move', { fontSize: '16px', fill: '#eeeeee' });
+            var tutArrow = this.add.text(x, -40, 'General Error says: Press arrow keys to move', { fontSize: '16px', fill: '#eeeeee' });
             var arrowTween = this.add.tween(tutArrow).to({ y: y }, 2400, Phaser.Easing.Bounce.Out);
             y -= 250;
-            var tutGoal1 = this.add.text(300, 0, 'General Error says: Keep on moving, soldier! Faster!', { fontSize: '16px', fill: '#eeeeee' });
+            var tutGoal1 = this.add.text(x, -40, 'General Error says: Keep on moving, soldier! Faster!', { fontSize: '16px', fill: '#eeeeee' });
             var goal1Tween = this.add.tween(tutGoal1).to({ y: y }, 2400, Phaser.Easing.Bounce.Out);
             y -= 250;
-            var tutBack = this.add.text(300, 0, 'General Error says: You cannot move back', { fontSize: '16px', fill: '#eeeeee' });
+            var tutBack = this.add.text(x, -40, 'General Error says: You cannot move back', { fontSize: '16px', fill: '#eeeeee' });
             var backTween = this.add.tween(tutBack).to({ y: y }, 2400, Phaser.Easing.Bounce.Out);
             y -= 250;
-            var tutBroom = this.add.text(300, 0, 'General Error says: Press space to use your weapaon', { fontSize: '16px', fill: '#eeeeee' });
+            var tutBroom = this.add.text(x, -40, 'General Error says: Press and hold spacebar to use your weapaon', { fontSize: '16px', fill: '#eeeeee' });
             var broomTween = this.add.tween(tutBroom).to({ y: y }, 2400, Phaser.Easing.Bounce.Out);
             y -= 250;
-            var tutClean = this.add.text(300, 0, 'General Error says: Clean up after the other soldiers', { fontSize: '16px', fill: '#eeeeee' });
+            var tutClean = this.add.text(x, -40, 'General Error says: Clean up after the other soldiers', { fontSize: '16px', fill: '#eeeeee' });
             var cleanTween = this.add.tween(tutClean).to({ y: y }, 2400, Phaser.Easing.Bounce.Out);
             y -= 250;
-            var tutWeapon = this.add.text(300, 0, 'General Error says: No, you won\'t get a proper weapon!', { fontSize: '16px', fill: '#eeeeee' });
+            var tutWeapon = this.add.text(x, -40, 'General Error says: No, you won\'t get a proper weapon!', { fontSize: '16px', fill: '#eeeeee' });
             var weapeonTween = this.add.tween(tutWeapon).to({ y: y }, 2400, Phaser.Easing.Bounce.Out);
             y -= 250;
-            var tutGoal = this.add.text(300, 0, 'General Error says: Keep on moving, soldier! Faster!', { fontSize: '16px', fill: '#eeeeee' });
+            var tutGoal = this.add.text(x, -40, 'General Error says: Keep on moving, soldier! Faster!', { fontSize: '16px', fill: '#eeeeee' });
             var goalTween = this.add.tween(tutGoal).to({ y: y }, 2400, Phaser.Easing.Bounce.Out);
             y -= 250;
-            var tutMissed = this.add.text(300, 0, 'General Error says: I think you missed a spot', { fontSize: '16px', fill: '#eeeeee' });
+            var tutMissed = this.add.text(x, -40, 'General Error says: I think you missed a spot', { fontSize: '16px', fill: '#eeeeee' });
             var missedTween = this.add.tween(tutMissed).to({ y: y }, 2400, Phaser.Easing.Bounce.Out);
             y -= 250;
             fastTween.chain(arrowTween, goal1Tween, backTween, broomTween, cleanTween, weapeonTween, goalTween, missedTween);
@@ -174,16 +238,34 @@ var Mordor;
         Level1.prototype.create = function () {
             var width = 800;
             var height = 600;
+            this.isLevelDone = false;
             this.physics.startSystem(Phaser.Physics.ARCADE);
             this.stage.backgroundColor = "#000000";
             this.map = this.add.tilemap('level1');
             this.map.addTilesetImage('Floortiles');
-            this.layer = this.map.createLayer('Ground');
+            this.layer = this.map.createLayer('Outdoor');
             this.layer.resizeWorld();
             this.camera.y = this.world.height;
             this.group = this.add.physicsGroup(Phaser.Physics.ARCADE);
             this.tutorial();
-            this.player = new Mordor.Player(this.game, 300, this.world.height - 100);
+            var tmp = this.game;
+            this.oldRank = tmp.rankFromScore(tmp.score);
+            var rank = tmp.rankFromScore(tmp.score);
+            switch (rank) {
+                case 1:
+                    this.player = new Mordor.Player(this.game, 300, this.world.height - 100, 'general1', ' Corporal You');
+                    break;
+                case 2:
+                    this.player = new Mordor.Player(this.game, 300, this.world.height - 100, 'general2', ' Major You');
+                    break;
+                case 3:
+                    this.player = new Mordor.Player(this.game, 300, this.world.height - 100, 'generalerror', ' General You');
+                    break;
+                case 0:
+                default:
+                    this.player = new Mordor.Player(this.game, 300, this.world.height - 100, 'player', 'You');
+                    break;
+            }
             this.camera.follow(this.player, Phaser.Camera.FOLLOW_LOCKON);
             var privateParts = new Mordor.Soldier(this.game, 'player', -100, this.world.height - 200, this.group);
             privateParts.setGoal(this.world.width + 100, this.world.height - 200);
@@ -193,12 +275,12 @@ var Mordor;
             privateEye.setGoal(0 - 100, this.world.height / 2 - 100);
             var majorFailure = new Mordor.Soldier(this.game, 'general1', 100, -100, this.group);
             majorFailure.setGoal(150, this.world.height + 100);
-            var majorAsshole = new Mordor.Soldier(this.game, 'general2', this.world.width + 100, this.world.height - 200, this.group);
-            majorAsshole.setGoal(100, -100);
+            var corporalPunishment = new Mordor.Soldier(this.game, 'general2', this.world.width + 100, this.world.height - 200, this.group);
+            corporalPunishment.setGoal(100, -100);
             var generalError = new Mordor.Soldier(this.game, 'generalerror', this.world.width + 100, 800, this.group);
             generalError.setGoal(0 - 100, 1000);
-            this.score = 0;
             this.scoreText = this.add.text(200, 500, 'score: 0', { fontSize: '32px', fill: '#000' });
+            this.scoreText.text = 'Score: ' + tmp.score;
             this.scoreText.fixedToCamera = true;
             this.scoreText.cameraOffset.setTo(50, height - 50);
             var introText = this.add.text(width / 2, this.world.height - height / 2, 'Level 1 - The Hangar', { fontSize: '32px', fill: '#eeeeee' });
@@ -214,18 +296,34 @@ var Mordor;
             }
             if (this.physics.arcade.overlap(this.player, this.group, this.collisionHandler, this.processHandler, this)) {
             }
-            if (this.player.y < 16 * 6) {
+            if (this.player.y < 15 * 6 && this.isLevelDone === false) {
                 // Level complete
+                this.isLevelDone = true;
+                this.player.stop();
                 var width = 800;
                 var height = 600;
-                var outroText = this.add.text(width / 2, height / 2, 'Level completed', { fontSize: '32px', fill: '#eeeeee' });
+                var outroText = this.add.text(width / 2, height / 2 - 64, 'Level completed', { fontSize: '32px', fill: '#eeeeee' });
                 outroText.anchor = new Phaser.Point(0.5, 0.5);
                 outroText.alpha = 0.0;
-                var tweenIn = this.game.add.tween(outroText).to({ alpha: 1.0 }, 1500, Phaser.Easing.Linear.None);
-                var tweenOut = this.game.add.tween(outroText).to({ alpha: 0.0 }, 1500, Phaser.Easing.Linear.None);
-                tweenIn.chain(tweenOut);
-                tweenIn.start();
+                var tweenIn2 = this.game.add.tween(outroText).to({ alpha: 1.0 }, 2500, Phaser.Easing.Linear.None);
+                var tweenOut2 = this.game.add.tween(outroText).to({ alpha: 0.0 }, 2500, Phaser.Easing.Linear.None);
+                tweenIn2.chain(tweenOut2);
+                tweenIn2.start();
+                tweenOut2.onComplete.add(this.levelDone, this);
+                var tmp = this.game;
+                if (this.oldRank !== tmp.rankFromScore(tmp.score)) {
+                    var rankText = this.add.text(width / 2, height / 3 - 64, 'General Error says: You got a new rank. Well done!', { fontSize: '24px', fill: '#eeeeee' });
+                    rankText.anchor = new Phaser.Point(0.5, 0.5);
+                    rankText.alpha = 0.0;
+                    var tweenIn3 = this.game.add.tween(rankText).to({ alpha: 1.0 }, 1500, Phaser.Easing.Linear.None);
+                    var tweenOut3 = this.game.add.tween(rankText).to({ alpha: 0.0 }, 1500, Phaser.Easing.Linear.None);
+                    tweenIn3.chain(tweenOut3);
+                    tweenIn3.start();
+                }
             }
+        };
+        Level1.prototype.levelDone = function () {
+            this.game.state.start("Level1", true, false);
         };
         Level1.prototype.render = function () {
             /*            this.game.debug.cameraInfo(this.camera, 32, 32);
@@ -255,8 +353,9 @@ var Mordor;
                 }
                 else {
                     shoeprint.kill();
-                    this.score += 10;
-                    this.scoreText.text = 'Score: ' + this.score;
+                    var tmp = this.game;
+                    tmp.score += 10;
+                    this.scoreText.text = 'Score: ' + tmp.score;
                 }
             }
         };
@@ -277,8 +376,8 @@ var Mordor;
 (function (Mordor) {
     var Player = (function (_super) {
         __extends(Player, _super);
-        function Player(game, x, y) {
-            _super.call(this, game, x, y, "player", 0);
+        function Player(game, x, y, name, displayName) {
+            _super.call(this, game, x, y, name, 0);
             this.anchor.setTo(0.5, 0.5);
             this.scale = new Phaser.Point(3.0, 3.0);
             this.animations.add('walk', [1, 0, 2, 0], 4, true);
@@ -296,8 +395,16 @@ var Mordor;
             game.physics.enable(this);
             this.body.collideWorldBounds = true;
             this.body.setSize(32, 32, 0, -16);
+            if (displayName !== null) {
+                this.displayName = game.add.text(x, y, displayName, { fontSize: '12px', fill: '#aacc99' });
+            }
+            this.isStopped = false;
         }
         Player.prototype.update = function () {
+            if (this.displayName !== null) {
+                this.displayName.x = this.x - this.displayName.width / 2;
+                this.displayName.y = this.y + 48;
+            }
             this.body.velocity.x = 0;
             this.body.velocity.y = 0;
             this.game.world.setBounds(0, 0, 800, this.game.camera.y + 600);
@@ -315,30 +422,32 @@ var Mordor;
                     this.broom.y = -4;
                     break;
             }
-            if (this.game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)) {
-                this.animations.stop("walk");
-                this.animations.play("broom");
-                this.isCleaning = true;
-                return;
-            }
-            else {
-                this.animations.stop("broom");
-                this.isCleaning = false;
-            }
-            if (this.game.input.keyboard.isDown(Phaser.Keyboard.LEFT)) {
-                this.body.velocity.x = -150;
-            }
-            else if (this.game.input.keyboard.isDown(Phaser.Keyboard.RIGHT)) {
-                this.body.velocity.x = 150;
-            }
-            if (this.game.input.keyboard.isDown(Phaser.Keyboard.UP)) {
-                this.body.velocity.y = -150;
-                this.animations.play("walk");
-            }
-            else if (this.game.input.keyboard.isDown(Phaser.Keyboard.DOWN)) {
-                if (this.body.y < this.game.camera.bounds.bottom) {
-                    this.body.velocity.y = 150;
+            if (this.isStopped !== true) {
+                if (this.game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)) {
+                    this.animations.stop("walk");
+                    this.animations.play("broom");
+                    this.isCleaning = true;
+                    return;
+                }
+                else {
+                    this.animations.stop("broom");
+                    this.isCleaning = false;
+                }
+                if (this.game.input.keyboard.isDown(Phaser.Keyboard.LEFT)) {
+                    this.body.velocity.x = -150;
+                }
+                else if (this.game.input.keyboard.isDown(Phaser.Keyboard.RIGHT)) {
+                    this.body.velocity.x = 150;
+                }
+                if (this.game.input.keyboard.isDown(Phaser.Keyboard.UP)) {
+                    this.body.velocity.y = -150;
                     this.animations.play("walk");
+                }
+                else if (this.game.input.keyboard.isDown(Phaser.Keyboard.DOWN)) {
+                    if (this.body.y < this.game.camera.bounds.bottom) {
+                        this.body.velocity.y = 150;
+                        this.animations.play("walk");
+                    }
                 }
             }
             if (this.body.velocity.x === 0 && this.body.velocity.y === 0) {
@@ -350,6 +459,9 @@ var Mordor;
                 this.rotation = 90 * (Math.PI / 180) + Math.atan2(this.body.velocity.y, this.body.velocity.x);
             }
         };
+        Player.prototype.stop = function () {
+            this.isStopped = true;
+        };
         return Player;
     }(Phaser.Sprite));
     Mordor.Player = Player;
@@ -360,7 +472,7 @@ var Mordor;
 (function (Mordor) {
     var Soldier = (function (_super) {
         __extends(Soldier, _super);
-        function Soldier(game, name, x, y, group) {
+        function Soldier(game, name, x, y, group, displayName) {
             _super.call(this, game, x, y, name, 0);
             this.shoeprintGroup = group;
             this.anchor.setTo(0.5, 0.5);
@@ -370,6 +482,9 @@ var Mordor;
             this.prevFrame = -1;
             game.add.existing(this);
             game.physics.enable(this);
+            if (displayName !== null) {
+                this.displayName = game.add.text(x, y, displayName, { fontSize: '12px', fill: '#aacc99' });
+            }
         }
         Soldier.prototype.createShoeprint = function (x, y, name, frame) {
             var shoeprint = this.game.add.sprite(x, y, name, frame);
@@ -414,6 +529,10 @@ var Mordor;
             }
             else {
                 var b = 42;
+            }
+            if (this.displayName !== null) {
+                this.displayName.x = this.x - this.displayName.width / 2;
+                this.displayName.y = this.y + 48;
             }
         };
         return Soldier;

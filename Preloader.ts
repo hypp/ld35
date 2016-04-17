@@ -28,6 +28,7 @@ namespace Mordor {
             this.load.spritesheet('player', 'assets/player.png', 32, 16, 3);
             this.load.image('broom','assets/broom.png');
             this.load.spritesheet('shoeprints', 'assets/shoeprints.png', 32, 16, 2);
+            this.load.audio('music', 'assets/music.wav', true);
         }
 
         create() {

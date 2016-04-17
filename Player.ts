@@ -7,9 +7,11 @@ namespace Mordor {
     export class Player extends Phaser.Sprite {
       broom: Phaser.Sprite
       isCleaning: boolean
+      displayName: Phaser.Text
+      isStopped: boolean
 
-      constructor(game: Phaser.Game, x: number, y: number) {
-            super(game, x, y, "player", 0);
+      constructor(game: Phaser.Game, x: number, y: number, name: string, displayName?: string) {
+            super(game, x, y, name, 0);
             this.anchor.setTo(0.5, 0.5);
 
             this.scale = new Phaser.Point(3.0, 3.0);
@@ -30,9 +32,20 @@ namespace Mordor {
             game.physics.enable(this);
             this.body.collideWorldBounds = true;
             this.body.setSize(32,32,0,-16);
+            
+            if (displayName !== null) {
+                this.displayName = game.add.text(x, y, displayName, { fontSize: '12px', fill: '#aacc99' });
+            }          
+            
+            this.isStopped = false;  
         }
 
         update() {
+            if (this.displayName !== null) {
+                this.displayName.x = this.x - this.displayName.width / 2;
+                this.displayName.y = this.y + 48;
+            }
+            
             this.body.velocity.x = 0;
             this.body.velocity.y = 0;
             
@@ -53,35 +66,37 @@ namespace Mordor {
                     this.broom.y = -4;
                     break;
             }
-
-            if (this.game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)) {
-                this.animations.stop("walk");
-                this.animations.play("broom");
-                this.isCleaning = true;
-                return;
-            } else {
-                this.animations.stop("broom");
-                this.isCleaning = false;
-            }
             
-            if (this.game.input.keyboard.isDown(Phaser.Keyboard.LEFT)) {
-                this.body.velocity.x = -150;
-            }
-            else if (this.game.input.keyboard.isDown(Phaser.Keyboard.RIGHT)) {
-                this.body.velocity.x = 150;
-            }
-                        
-            if (this.game.input.keyboard.isDown(Phaser.Keyboard.UP)) {
-
-                this.body.velocity.y = -150;
-                this.animations.play("walk");
-            }
-            else if (this.game.input.keyboard.isDown(Phaser.Keyboard.DOWN)) {
-                if (this.body.y < this.game.camera.bounds.bottom) {
-                    this.body.velocity.y = 150;
-                    this.animations.play("walk");                    
+            if (this.isStopped !== true) {
+                if (this.game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)) {
+                    this.animations.stop("walk");
+                    this.animations.play("broom");
+                    this.isCleaning = true;
+                    return;
+                } else {
+                    this.animations.stop("broom");
+                    this.isCleaning = false;
                 }
+                
+                if (this.game.input.keyboard.isDown(Phaser.Keyboard.LEFT)) {
+                    this.body.velocity.x = -150;
+                }
+                else if (this.game.input.keyboard.isDown(Phaser.Keyboard.RIGHT)) {
+                    this.body.velocity.x = 150;
+                }
+                            
+                if (this.game.input.keyboard.isDown(Phaser.Keyboard.UP)) {
 
+                    this.body.velocity.y = -150;
+                    this.animations.play("walk");
+                }
+                else if (this.game.input.keyboard.isDown(Phaser.Keyboard.DOWN)) {
+                    if (this.body.y < this.game.camera.bounds.bottom) {
+                        this.body.velocity.y = 150;
+                        this.animations.play("walk");                    
+                    }
+
+                }
             }
             
             if (this.body.velocity.x === 0 && this.body.velocity.y === 0) {
@@ -91,6 +106,10 @@ namespace Mordor {
                 this.animations.play("walk");
                 this.rotation = 90 * (Math.PI / 180) + Math.atan2(this.body.velocity.y, this.body.velocity.x);
             }
+        }
+        
+        stop() {
+            this.isStopped = true;
         }
     }
 }

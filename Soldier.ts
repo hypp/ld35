@@ -10,6 +10,7 @@ namespace Mordor {
       shoeprintGroup: Phaser.Group
       goalX: number
       goalY: number
+      displayName: Phaser.Text
       
       createShoeprint(x: number, y: number, name: string, frame: number) {
             let shoeprint = this.game.add.sprite(x, y, name, frame);
@@ -23,7 +24,7 @@ namespace Mordor {
             return shoeprint;
       }
 
-      constructor(game: Phaser.Game, name: string, x: number, y: number, group: Phaser.Group) {
+      constructor(game: Phaser.Game, name: string, x: number, y: number, group: Phaser.Group, displayName?: string) {
             super(game, x, y, name, 0);
             this.shoeprintGroup = group;
             
@@ -35,7 +36,11 @@ namespace Mordor {
             this.prevFrame = -1;
             
             game.add.existing(this);
-            game.physics.enable(this);            
+            game.physics.enable(this);
+            
+            if (displayName !== null) {
+                this.displayName = game.add.text(x, y, displayName, { fontSize: '12px', fill: '#aacc99' });
+            }            
         }
         
         setGoal(x: number, y: number) {
@@ -79,7 +84,12 @@ namespace Mordor {
                 }
             } else {
                 let b = 42;
-            } 
+            }
+            
+            if (this.displayName !== null) {
+                this.displayName.x = this.x - this.displayName.width / 2;
+                this.displayName.y = this.y + 48;
+            }
         }
     }
 }
