@@ -110,10 +110,10 @@ var Mordor;
             this.load.image('oilstain', 'assets/oilstain.png');
             this.load.image('waterstain', 'assets/waterstain.png');
             this.load.image('bloodstain', 'assets/bloodstain.png');
-            this.load.audio('music', 'assets/music.wav', true);
-            this.load.audio('sopa1', 'assets/sopa1.wav', true);
-            this.load.audio('sopa2', 'assets/sopa2.wav', true);
-            this.load.audio('levelcomplete', 'assets/levelcomplete.wav', true);
+            this.load.audio('music', ['assets/music.ogg', 'assets/music.mp3', 'assets/music.wav'], true);
+            this.load.audio('sopa1', ['assets/sopa1.ogg', 'assets/sopa1.mp3', 'assets/sopa1.wav'], true);
+            this.load.audio('sopa2', ['assets/sopa2.ogg', 'assets/sopa2.mp3', 'assets/sopa2.wav'], true);
+            this.load.audio('levelcomplete', ['assets/levelcomplete.ogg', 'assets/levelcomplete.mp3', 'assets/levelcomplete.wav'], true);
         };
         Preloader.prototype.create = function () {
             var tween = this.add.tween(this.preloadBar).to({ alpha: 0 }, 1000, Phaser.Easing.Linear.None, true);
