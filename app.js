@@ -514,7 +514,6 @@ var Mordor;
             this.body.velocity.y = 0;
             this.game.world.setBounds(0, 0, 800, this.game.camera.y + 600);
             if (!this.animations.currentAnim.isPlaying) {
-                this.animations.frame = 0;
             }
             switch (this.animations.frame) {
                 case 1:
@@ -565,7 +564,6 @@ var Mordor;
             }
             if (this.body.velocity.x === 0 && this.body.velocity.y === 0) {
                 this.animations.stop("walk");
-                this.animations.frame = 0;
             }
             else {
                 this.animations.play("walk");
