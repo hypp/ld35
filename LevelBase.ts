@@ -95,24 +95,10 @@ namespace Mordor {
             
             this.oldRank = this.myGame.rankFromScore(this.myGame.score);
             let rank = this.myGame.rankFromScore(this.myGame.score);
+            let rankSprite = this.myGame.spriteFromRank(rank);
+            let rankName = this.myGame.nameFromRank(rank);
             
-            switch (rank) {
-                case 1:
-                    this.player = new Mordor.Player(this.game, 300, this.world.height - 100, 'general1', ' Corporal You');
-                    break;
-                case 2:
-                    this.player = new Mordor.Player(this.game, 300, this.world.height - 100, 'general2', ' Major You');
-                    break;
-                case 3:     
-                    this.player = new Mordor.Player(this.game, 300, this.world.height - 100, 'generalerror', ' General You');
-                    break;
-                case 0:
-                default:                
-                    this.player = new Mordor.Player(this.game, 300, this.world.height - 100, 'player', 'You');
-                    break;
-                
-            }
-            
+            this.player = new Mordor.Player(this.game, 300, this.world.height - 100, rankSprite, rankName + ' You');
             this.camera.follow(this.player, Phaser.Camera.FOLLOW_LOCKON);            
         }
         

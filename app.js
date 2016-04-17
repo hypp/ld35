@@ -21,24 +21,81 @@ var Mordor;
             this.state.start("Boot");
         }
         Game.prototype.rankFromScore = function (score) {
-            var rank = 0;
-            if (score < 750) {
-                // Private
-                rank = 0;
-            }
-            else if (score < 1500) {
-                // general1
-                rank = 1;
-            }
-            else if (score < 1750) {
-                // general2
-                rank = 2;
-            }
-            else {
-                // generalerror
-                rank = 3;
-            }
+            var rank = Math.floor(score / 500);
             return rank;
+        };
+        Game.prototype.spriteFromRank = function (rank) {
+            var sprite = 'player';
+            switch (rank) {
+                case 0:
+                    sprite = 'player';
+                    break;
+                case 1:
+                case 2:
+                case 3:
+                case 4:
+                case 5:
+                    sprite = 'general1';
+                    break;
+                case 6:
+                case 7:
+                case 8:
+                case 9:
+                    sprite = 'general2';
+                    break;
+                default:
+                    sprite = 'generalerror';
+                    break;
+            }
+            return sprite;
+        };
+        Game.prototype.nameFromRank = function (rank) {
+            var name = 'Private';
+            switch (rank) {
+                case 0:
+                    name = 'Private';
+                    break;
+                case 1:
+                    name = 'Private First Class';
+                    break;
+                case 2:
+                    name = 'Corporal';
+                    break;
+                case 3:
+                    name = 'Sergant';
+                    break;
+                case 4:
+                    name = 'Sergant Major';
+                    break;
+                case 5:
+                    name = 'First Lieutenant';
+                    break;
+                case 6:
+                    name = 'Captain';
+                    break;
+                case 7:
+                    name = 'Major';
+                    break;
+                case 8:
+                    name = 'Lieutenant Colonel';
+                    break;
+                case 9:
+                    name = 'Colonel';
+                    break;
+                default:
+                    name = 'General';
+                    if (rank > 25) {
+                        name = 'General of the army';
+                    }
+                    if (rank > 50) {
+                        name = 'General Zod';
+                    }
+                    if (rank > 100) {
+                        name = 'God';
+                    }
+                    break;
+            }
+            return name;
         };
         return Game;
     }(Phaser.Game));
@@ -277,21 +334,9 @@ var Mordor;
             }
             this.oldRank = this.myGame.rankFromScore(this.myGame.score);
             var rank = this.myGame.rankFromScore(this.myGame.score);
-            switch (rank) {
-                case 1:
-                    this.player = new Mordor.Player(this.game, 300, this.world.height - 100, 'general1', ' Corporal You');
-                    break;
-                case 2:
-                    this.player = new Mordor.Player(this.game, 300, this.world.height - 100, 'general2', ' Major You');
-                    break;
-                case 3:
-                    this.player = new Mordor.Player(this.game, 300, this.world.height - 100, 'generalerror', ' General You');
-                    break;
-                case 0:
-                default:
-                    this.player = new Mordor.Player(this.game, 300, this.world.height - 100, 'player', 'You');
-                    break;
-            }
+            var rankSprite = this.myGame.spriteFromRank(rank);
+            var rankName = this.myGame.nameFromRank(rank);
+            this.player = new Mordor.Player(this.game, 300, this.world.height - 100, rankSprite, rankName + ' You');
             this.camera.follow(this.player, Phaser.Camera.FOLLOW_LOCKON);
         };
         LevelBase.prototype.setupLevelPart2 = function (levelName) {
