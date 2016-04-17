@@ -316,7 +316,7 @@ var Mordor;
             this.physics.arcade.overlap(this.player, this.group, this.collisionHandler, this.processHandler, this);
             this.physics.arcade.overlap(this.player.broom, this.stainGroup, this.collisionHandler, this.processHandler, this);
             this.physics.arcade.overlap(this.player, this.stainGroup, this.collisionHandler, this.processHandler, this);
-            if (this.player.y < 15 * 6 && this.isLevelDone === false) {
+            if (this.player.y < 16 * 5 - 8 && this.isLevelDone === false) {
                 // Level complete
                 this.isLevelDone = true;
                 this.player.stop();
