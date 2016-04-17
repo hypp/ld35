@@ -107,6 +107,9 @@ var Mordor;
             this.load.image('broom', 'assets/broom.png');
             this.load.spritesheet('shoeprints', 'assets/shoeprints.png', 32, 16, 2);
             this.load.audio('music', 'assets/music.wav', true);
+            this.load.audio('sopa1', 'assets/sopa1.wav', true);
+            this.load.audio('sopa2', 'assets/sopa2.wav', true);
+            this.load.audio('levelcomplete', 'assets/levelcomplete.wav', true);
         };
         Preloader.prototype.create = function () {
             var tween = this.add.tween(this.preloadBar).to({ alpha: 0 }, 1000, Phaser.Easing.Linear.None, true);
@@ -547,6 +550,10 @@ var Mordor;
             if (displayName !== null) {
                 this.displayName = game.add.text(x, y, displayName, { fontSize: '12px', fill: '#aacc99' });
             }
+            this.sopa1 = this.game.add.audio('sopa1');
+            this.sopa1.volume = 0.05;
+            this.sopa2 = this.game.add.audio('sopa2');
+            this.sopa2.volume = 0.05;
             this.isStopped = false;
         }
         Player.prototype.update = function () {
@@ -576,6 +583,14 @@ var Mordor;
                     this.animations.stop("walk");
                     this.animations.play("broom");
                     this.isCleaning = true;
+                    if (this.sopa1.isPlaying === false && this.sopa2.isPlaying === false) {
+                        if (this.game.rnd.between(0, 1) === 0) {
+                            this.sopa1.play();
+                        }
+                        else {
+                            this.sopa2.play();
+                        }
+                    }
                     return;
                 }
                 else {

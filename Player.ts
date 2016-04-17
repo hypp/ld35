@@ -9,6 +9,8 @@ namespace Mordor {
       isCleaning: boolean
       displayName: Phaser.Text
       isStopped: boolean
+      sopa1: Phaser.Sound
+      sopa2: Phaser.Sound
 
       constructor(game: Phaser.Game, x: number, y: number, name: string, displayName?: string) {
             super(game, x, y, name, 0);
@@ -36,6 +38,10 @@ namespace Mordor {
             if (displayName !== null) {
                 this.displayName = game.add.text(x, y, displayName, { fontSize: '12px', fill: '#aacc99' });
             }          
+            this.sopa1 = this.game.add.audio('sopa1');
+            this.sopa1.volume = 0.05;
+            this.sopa2 = this.game.add.audio('sopa2');
+            this.sopa2.volume = 0.05;
             
             this.isStopped = false;  
         }
@@ -72,6 +78,13 @@ namespace Mordor {
                     this.animations.stop("walk");
                     this.animations.play("broom");
                     this.isCleaning = true;
+                    if (this.sopa1.isPlaying === false && this.sopa2.isPlaying === false) {
+                        if (this.game.rnd.between(0,1) === 0) {
+                            this.sopa1.play();
+                        } else {
+                            this.sopa2.play();
+                        }
+                    }
                     return;
                 } else {
                     this.animations.stop("broom");
