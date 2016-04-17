@@ -22,6 +22,10 @@ namespace Mordor {
             
             // 
             this.load.spritesheet('player', 'assets/player.png', 32, 16, 3);
+            this.load.spritesheet('general1', 'assets/general.png', 32, 16, 3);
+            this.load.spritesheet('general2', 'assets/general2.png', 32, 16, 3);
+            this.load.spritesheet('generalerror', 'assets/general3.png', 32, 16, 3);
+            this.load.spritesheet('player', 'assets/player.png', 32, 16, 3);
             this.load.image('broom','assets/broom.png');
             this.load.spritesheet('shoeprints', 'assets/shoeprints.png', 32, 16, 2);
         }

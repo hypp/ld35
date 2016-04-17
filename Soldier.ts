@@ -23,8 +23,8 @@ namespace Mordor {
             return shoeprint;
       }
 
-      constructor(game: Phaser.Game, x: number, y: number, group: Phaser.Group) {
-            super(game, x, y, "player", 0);
+      constructor(game: Phaser.Game, name: string, x: number, y: number, group: Phaser.Group) {
+            super(game, x, y, name, 0);
             this.shoeprintGroup = group;
             
             this.anchor.setTo(0.5, 0.5);
