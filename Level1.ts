@@ -119,7 +119,7 @@ namespace Mordor {
             this.scoreText.fixedToCamera = true;
             this.scoreText.cameraOffset.setTo(50, height - 50);
             
-            let introText = this.add.text(width / 2, this.world.height - height / 2, '- The Hangar -', { fontSize: '32px', fill: '#eeeeee' });
+            let introText = this.add.text(width / 2, this.world.height - height / 2, '- The Hangar 18 Shift -', { fontSize: '32px', fill: '#eeeeee' });
             introText.anchor = new Phaser.Point(0.5, 0.5);
             introText.alpha = 0.0;
             let tweenIn = this.game.add.tween(introText).to({ alpha: 1.0 }, 1500, Phaser.Easing.Linear.None);            
@@ -149,10 +149,10 @@ namespace Mordor {
                 let width = 800;
                 let height = 600;
 
-                let outroText = this.add.text(width / 2, height / 2 - 64, 'Level completed', { fontSize: '32px', fill: '#eeeeee' });
+                let outroText = this.add.text(width / 2, height / 2 - 64, 'Shift completed', { fontSize: '32px', fill: '#eeeeee' });
                 outroText.anchor = new Phaser.Point(0.5, 0.5);
                 outroText.alpha = 0.0;
-                let tweenIn2 = this.game.add.tween(outroText).to({ alpha: 1.0 }, 2500, Phaser.Easing.Linear.None);            
+                let tweenIn2 = this.game.add.tween(outroText).to({ alpha: 1.0 }, 2500, Phaser.Easing.Linear.None, false, 3000);            
                 let tweenOut2 = this.game.add.tween(outroText).to({ alpha: 0.0 }, 2500, Phaser.Easing.Linear.None);            
                 tweenIn2.chain(tweenOut2);
                 tweenIn2.start();
@@ -164,7 +164,7 @@ namespace Mordor {
                     let rankText = this.add.text(width / 2, height / 3 - 64, 'General Error says: You shift shape to a new rank. Well done!', { fontSize: '24px', fill: '#eeeeee' });
                     rankText.anchor = new Phaser.Point(0.5, 0.5);
                     rankText.alpha = 0.0;
-                    let tweenIn3 = this.game.add.tween(rankText).to({ alpha: 1.0 }, 1500, Phaser.Easing.Linear.None);            
+                    let tweenIn3 = this.game.add.tween(rankText).to({ alpha: 1.0 }, 1500, Phaser.Easing.Linear.None, false, 2000);            
                     let tweenOut3 = this.game.add.tween(rankText).to({ alpha: 0.0 }, 1500, Phaser.Easing.Linear.None);            
                     tweenIn3.chain(tweenOut3);
                     tweenIn3.start();

@@ -28,9 +28,10 @@ namespace Mordor {
             this.add.text(32,y, '- Every man and woman must do his or her part in this time of crisis.', { fontSize: '16px', fill: '#88aa77' });
             y += 20;
             this.add.text(32,y, '- We appreciate what you are doing for your country.', { fontSize: '16px', fill: '#88aa77' });
-            y += 40;
-            
-            this.add.text(32,y, '- Time for your first shift at SHAPE. Your first shapeshift, as I like to call it!', { fontSize: '20px', fill: '#88aa77' });
+            y += 20;
+            this.add.text(32,y, '- We use a three shift system. Time for your first shift at SHAPE.', { fontSize: '16px', fill: '#88aa77' });
+            y += 20;            
+            this.add.text(32,y, '- Your first shapeshift, as I like to call it!', { fontSize: '16px', fill: '#88aa77' });
             y += 44;
             this.add.text(128,y, 'Click to proceed.', { fontSize: '24px', fill: '#88aa77' });
             
