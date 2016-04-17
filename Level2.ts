@@ -5,7 +5,7 @@
 
 namespace Mordor {
 
-    export class Level1 extends Phaser.State {
+    export class Level2 extends Phaser.State {
         
         map: Phaser.Tilemap
         layer: Phaser.TilemapLayer
@@ -14,44 +14,6 @@ namespace Mordor {
         scoreText: Phaser.Text
         isLevelDone: boolean
         oldRank: number
-
-        tutorial() {
-            let y = this.world.height - 100;
-            let x = 200;
-            let tutFast = this.add.text(x, -40, 'General Error says: Move UP through hangar 18 as fast as possible', { fontSize: '16px', fill: '#eeeeee' });
-            let fastTween = this.add.tween(tutFast).to( { y: y }, 2400, Phaser.Easing.Bounce.Out);
-            y -= 250;
-            let tutArrow = this.add.text(x, -40, 'General Error says: Press arrow keys to move', { fontSize: '16px', fill: '#eeeeee' });
-            let arrowTween = this.add.tween(tutArrow).to( { y: y }, 2400, Phaser.Easing.Bounce.Out);
-            y -= 250;
-            let tutGoal1 = this.add.text(x, -40, 'General Error says: Keep on moving, soldier! Faster!', { fontSize: '16px', fill: '#eeeeee' });
-            let goal1Tween = this.add.tween(tutGoal1).to( { y: y }, 2400, Phaser.Easing.Bounce.Out);
-            y -= 250;
-            let tutBack = this.add.text(x, -40, 'General Error says: You cannot move back', { fontSize: '16px', fill: '#eeeeee' });
-            let backTween = this.add.tween(tutBack).to( { y: y }, 2400, Phaser.Easing.Bounce.Out);
-            y -= 250;
-            let tutBroom = this.add.text(x, -40, 'General Error says: Press and hold spacebar to use your weapaon', { fontSize: '16px', fill: '#eeeeee' });
-            let broomTween = this.add.tween(tutBroom).to( { y: y }, 2400, Phaser.Easing.Bounce.Out);
-            y -= 250;
-            let tutClean = this.add.text(x, -40, 'General Error says: Clean up after the other soldiers', { fontSize: '16px', fill: '#eeeeee' });
-            let cleanTween = this.add.tween(tutClean).to( { y: y }, 2400, Phaser.Easing.Bounce.Out);
-            y -= 250/2;
-            let tutRank = this.add.text(x, -40, 'General Error says: The better you clean, the higher your rank', { fontSize: '16px', fill: '#eeeeee' });
-            let rankTween = this.add.tween(tutRank).to( { y: y }, 2400, Phaser.Easing.Bounce.Out);
-            y -= 250/2;
-            let tutWeapon = this.add.text(x, -40, 'General Error says: No, you won\'t get a proper weapon!', { fontSize: '16px', fill: '#eeeeee' });
-            let weapeonTween = this.add.tween(tutWeapon).to( { y: y }, 2400, Phaser.Easing.Bounce.Out);
-            y -= 250;
-            let tutGoal = this.add.text(x, -40, 'General Error says: Keep on moving, soldier! Faster!', { fontSize: '16px', fill: '#eeeeee' });
-            let goalTween = this.add.tween(tutGoal).to( { y: y }, 2400, Phaser.Easing.Bounce.Out);
-            y -= 250;
-            let tutMissed = this.add.text(x, -40, 'General Error says: I think you missed a spot', { fontSize: '16px', fill: '#eeeeee' });
-            let missedTween = this.add.tween(tutMissed).to( { y: y }, 2400, Phaser.Easing.Bounce.Out);
-            y -= 250;
-            
-            fastTween.chain(arrowTween, goal1Tween, backTween, broomTween, cleanTween, rankTween, weapeonTween, goalTween, missedTween);
-            fastTween.start();            
-        }
 
         create() {
             let width = 800;
@@ -64,19 +26,14 @@ namespace Mordor {
 
             this.map = this.add.tilemap('level1');
             this.map.addTilesetImage('Floortiles');
-            this.layer = this.map.createLayer('Ground');
+            this.layer = this.map.createLayer('Outdoor');
             this.layer.resizeWorld();
             
             this.camera.y = this.world.height;
 
             this.group = this.add.physicsGroup(Phaser.Physics.ARCADE);
             
-            
             let tmp = <Mordor.Game>this.game;
-            if (tmp.score === 0) {
-                this.tutorial();            
-            }
-            
             this.oldRank = tmp.rankFromScore(tmp.score);
             let rank = tmp.rankFromScore(tmp.score);
             
@@ -99,26 +56,27 @@ namespace Mordor {
             
             this.camera.follow(this.player, Phaser.Camera.FOLLOW_LOCKON);
          
-            let privateParts = new Mordor.Soldier(this.game, 'player', -100, this.world.height - 200, this.group);
-            privateParts.setGoal(this.world.width+100, this.world.height - 200);
-            let privateDetective = new Mordor.Soldier(this.game, 'player', this.world.width / 2, this.world.height + 100, this.group);
-            privateDetective.setGoal(this.world.width / 2, 0 - 100);
-            let privateEye = new Mordor.Soldier(this.game, 'player', this.world.width + 100, this.world.height / 2, this.group);
-            privateEye.setGoal(0 - 100, this.world.height / 2 - 100);
+         
+            let privateParts = new Mordor.Soldier(this.game, 'player', this.world.width, this.world.height + 100, this.group);
+            privateParts.setGoal(0, -100);
+            let privateDetective = new Mordor.Soldier(this.game, 'player', 0, this.world.height + 100, this.group);
+            privateDetective.setGoal(this.world.width, -100);
+            let privateEye = new Mordor.Soldier(this.game, 'player', this.world.width / 2, this.world.height + 100, this.group);
+            privateEye.setGoal(this.world.width / 2 - 64, -100);
             
-            let majorFailure = new Mordor.Soldier(this.game, 'general1', 100, -100, this.group);
-            majorFailure.setGoal(150, this.world.height + 100);
-            let corporalPunishment = new Mordor.Soldier(this.game, 'general2', this.world.width + 100, this.world.height - 200, this.group);
-            corporalPunishment.setGoal(100, -100);
-            let generalError = new Mordor.Soldier(this.game, 'generalerror', this.world.width + 100, 800, this.group);
-            generalError.setGoal(0 - 100, 1000);
+            let majorFailure = new Mordor.Soldier(this.game, 'general1', -100, (this.world.height / 3) * 2, this.group);
+            majorFailure.setGoal(this.world.width + 100, (this.world.height / 3) * 1);
+            let corporalPunishment = new Mordor.Soldier(this.game, 'general2', this.world.width + 100, (this.world.height / 3) * 1, this.group);
+            corporalPunishment.setGoal(-100, (this.world.height / 3) * 2);
+            let generalError = new Mordor.Soldier(this.game, 'generalerror', this.world.width + 100, this.world.height / 2 - 100, this.group);
+            generalError.setGoal(-100, this.world.height / 2 + 100);
                                     
             this.scoreText = this.add.text(200, 500, 'score: 0', { fontSize: '32px', fill: '#000' });
             this.scoreText.text = 'Score: ' + tmp.score;                                    
             this.scoreText.fixedToCamera = true;
             this.scoreText.cameraOffset.setTo(50, height - 50);
             
-            let introText = this.add.text(width / 2, this.world.height - height / 2, 'Level 1 - The Hangar', { fontSize: '32px', fill: '#eeeeee' });
+            let introText = this.add.text(width / 2, this.world.height - height / 2, 'Level 2 - The Excersice Yard', { fontSize: '32px', fill: '#eeeeee' });
             introText.anchor = new Phaser.Point(0.5, 0.5);
             introText.alpha = 0.0;
             let tweenIn = this.game.add.tween(introText).to({ alpha: 1.0 }, 1500, Phaser.Easing.Linear.None);            
@@ -171,7 +129,7 @@ namespace Mordor {
         }
         
         levelDone() {
-            this.game.state.start("Level2", true, false);
+            this.game.state.start("Level1", true, false);
         }
 
         render() {

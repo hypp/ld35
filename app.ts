@@ -5,6 +5,7 @@
 /// <reference path="Preloader.ts" />
 /// <reference path="MainMenu.ts" />
 /// <reference path="Level1.ts" />
+/// <reference path="Level2.ts" />
 /// <reference path="Player.ts" />
 /// <reference path="Soldier.ts" />
 

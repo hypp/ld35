@@ -16,6 +16,7 @@ var Mordor;
             this.state.add("Preloader", Mordor.Preloader, false);
             this.state.add("MainMenu", Mordor.MainMenu, false);
             this.state.add("Level1", Mordor.Level1, false);
+            this.state.add("Level2", Mordor.Level2, false);
             this.state.start("Boot");
         }
         Game.prototype.rankFromScore = function (score) {
@@ -205,7 +206,7 @@ var Mordor;
         Level1.prototype.tutorial = function () {
             var y = this.world.height - 100;
             var x = 200;
-            var tutFast = this.add.text(x, -40, 'General Error says: Move UP through the hanger as fast as possible', { fontSize: '16px', fill: '#eeeeee' });
+            var tutFast = this.add.text(x, -40, 'General Error says: Move UP through hangar 18 as fast as possible', { fontSize: '16px', fill: '#eeeeee' });
             var fastTween = this.add.tween(tutFast).to({ y: y }, 2400, Phaser.Easing.Bounce.Out);
             y -= 250;
             var tutArrow = this.add.text(x, -40, 'General Error says: Press arrow keys to move', { fontSize: '16px', fill: '#eeeeee' });
@@ -222,7 +223,10 @@ var Mordor;
             y -= 250;
             var tutClean = this.add.text(x, -40, 'General Error says: Clean up after the other soldiers', { fontSize: '16px', fill: '#eeeeee' });
             var cleanTween = this.add.tween(tutClean).to({ y: y }, 2400, Phaser.Easing.Bounce.Out);
-            y -= 250;
+            y -= 250 / 2;
+            var tutRank = this.add.text(x, -40, 'General Error says: The better you clean, the higher your rank', { fontSize: '16px', fill: '#eeeeee' });
+            var rankTween = this.add.tween(tutRank).to({ y: y }, 2400, Phaser.Easing.Bounce.Out);
+            y -= 250 / 2;
             var tutWeapon = this.add.text(x, -40, 'General Error says: No, you won\'t get a proper weapon!', { fontSize: '16px', fill: '#eeeeee' });
             var weapeonTween = this.add.tween(tutWeapon).to({ y: y }, 2400, Phaser.Easing.Bounce.Out);
             y -= 250;
@@ -232,7 +236,7 @@ var Mordor;
             var tutMissed = this.add.text(x, -40, 'General Error says: I think you missed a spot', { fontSize: '16px', fill: '#eeeeee' });
             var missedTween = this.add.tween(tutMissed).to({ y: y }, 2400, Phaser.Easing.Bounce.Out);
             y -= 250;
-            fastTween.chain(arrowTween, goal1Tween, backTween, broomTween, cleanTween, weapeonTween, goalTween, missedTween);
+            fastTween.chain(arrowTween, goal1Tween, backTween, broomTween, cleanTween, rankTween, weapeonTween, goalTween, missedTween);
             fastTween.start();
         };
         Level1.prototype.create = function () {
@@ -243,12 +247,14 @@ var Mordor;
             this.stage.backgroundColor = "#000000";
             this.map = this.add.tilemap('level1');
             this.map.addTilesetImage('Floortiles');
-            this.layer = this.map.createLayer('Outdoor');
+            this.layer = this.map.createLayer('Ground');
             this.layer.resizeWorld();
             this.camera.y = this.world.height;
             this.group = this.add.physicsGroup(Phaser.Physics.ARCADE);
-            this.tutorial();
             var tmp = this.game;
+            if (tmp.score === 0) {
+                this.tutorial();
+            }
             this.oldRank = tmp.rankFromScore(tmp.score);
             var rank = tmp.rankFromScore(tmp.score);
             switch (rank) {
@@ -312,7 +318,7 @@ var Mordor;
                 tweenOut2.onComplete.add(this.levelDone, this);
                 var tmp = this.game;
                 if (this.oldRank !== tmp.rankFromScore(tmp.score)) {
-                    var rankText = this.add.text(width / 2, height / 3 - 64, 'General Error says: You got a new rank. Well done!', { fontSize: '24px', fill: '#eeeeee' });
+                    var rankText = this.add.text(width / 2, height / 3 - 64, 'General Error says: You shift shape to a new rank. Well done!', { fontSize: '24px', fill: '#eeeeee' });
                     rankText.anchor = new Phaser.Point(0.5, 0.5);
                     rankText.alpha = 0.0;
                     var tweenIn3 = this.game.add.tween(rankText).to({ alpha: 1.0 }, 1500, Phaser.Easing.Linear.None);
@@ -323,7 +329,7 @@ var Mordor;
             }
         };
         Level1.prototype.levelDone = function () {
-            this.game.state.start("Level1", true, false);
+            this.game.state.start("Level2", true, false);
         };
         Level1.prototype.render = function () {
             /*            this.game.debug.cameraInfo(this.camera, 32, 32);
@@ -369,6 +375,149 @@ var Mordor;
         return Level1;
     }(Phaser.State));
     Mordor.Level1 = Level1;
+})(Mordor || (Mordor = {}));
+/// <reference path="typescript/phaser.d.ts" />
+// python -m SimpleHTTPServer
+var Mordor;
+(function (Mordor) {
+    var Level2 = (function (_super) {
+        __extends(Level2, _super);
+        function Level2() {
+            _super.apply(this, arguments);
+        }
+        Level2.prototype.create = function () {
+            var width = 800;
+            var height = 600;
+            this.isLevelDone = false;
+            this.physics.startSystem(Phaser.Physics.ARCADE);
+            this.stage.backgroundColor = "#000000";
+            this.map = this.add.tilemap('level1');
+            this.map.addTilesetImage('Floortiles');
+            this.layer = this.map.createLayer('Outdoor');
+            this.layer.resizeWorld();
+            this.camera.y = this.world.height;
+            this.group = this.add.physicsGroup(Phaser.Physics.ARCADE);
+            var tmp = this.game;
+            this.oldRank = tmp.rankFromScore(tmp.score);
+            var rank = tmp.rankFromScore(tmp.score);
+            switch (rank) {
+                case 1:
+                    this.player = new Mordor.Player(this.game, 300, this.world.height - 100, 'general1', ' Corporal You');
+                    break;
+                case 2:
+                    this.player = new Mordor.Player(this.game, 300, this.world.height - 100, 'general2', ' Major You');
+                    break;
+                case 3:
+                    this.player = new Mordor.Player(this.game, 300, this.world.height - 100, 'generalerror', ' General You');
+                    break;
+                case 0:
+                default:
+                    this.player = new Mordor.Player(this.game, 300, this.world.height - 100, 'player', 'You');
+                    break;
+            }
+            this.camera.follow(this.player, Phaser.Camera.FOLLOW_LOCKON);
+            var privateParts = new Mordor.Soldier(this.game, 'player', this.world.width, this.world.height + 100, this.group);
+            privateParts.setGoal(0, -100);
+            var privateDetective = new Mordor.Soldier(this.game, 'player', 0, this.world.height + 100, this.group);
+            privateDetective.setGoal(this.world.width, -100);
+            var privateEye = new Mordor.Soldier(this.game, 'player', this.world.width / 2, this.world.height + 100, this.group);
+            privateEye.setGoal(this.world.width / 2 - 64, -100);
+            var majorFailure = new Mordor.Soldier(this.game, 'general1', -100, (this.world.height / 3) * 2, this.group);
+            majorFailure.setGoal(this.world.width + 100, (this.world.height / 3) * 1);
+            var corporalPunishment = new Mordor.Soldier(this.game, 'general2', this.world.width + 100, (this.world.height / 3) * 1, this.group);
+            corporalPunishment.setGoal(-100, (this.world.height / 3) * 2);
+            var generalError = new Mordor.Soldier(this.game, 'generalerror', this.world.width + 100, this.world.height / 2 - 100, this.group);
+            generalError.setGoal(-100, this.world.height / 2 + 100);
+            this.scoreText = this.add.text(200, 500, 'score: 0', { fontSize: '32px', fill: '#000' });
+            this.scoreText.text = 'Score: ' + tmp.score;
+            this.scoreText.fixedToCamera = true;
+            this.scoreText.cameraOffset.setTo(50, height - 50);
+            var introText = this.add.text(width / 2, this.world.height - height / 2, 'Level 2 - The Excersice Yard', { fontSize: '32px', fill: '#eeeeee' });
+            introText.anchor = new Phaser.Point(0.5, 0.5);
+            introText.alpha = 0.0;
+            var tweenIn = this.game.add.tween(introText).to({ alpha: 1.0 }, 1500, Phaser.Easing.Linear.None);
+            var tweenOut = this.game.add.tween(introText).to({ alpha: 0.0 }, 1500, Phaser.Easing.Linear.None);
+            tweenIn.chain(tweenOut);
+            tweenIn.start();
+        };
+        Level2.prototype.update = function () {
+            if (this.physics.arcade.overlap(this.player.broom, this.group, this.collisionHandler, this.processHandler, this)) {
+            }
+            if (this.physics.arcade.overlap(this.player, this.group, this.collisionHandler, this.processHandler, this)) {
+            }
+            if (this.player.y < 15 * 6 && this.isLevelDone === false) {
+                // Level complete
+                this.isLevelDone = true;
+                this.player.stop();
+                var width = 800;
+                var height = 600;
+                var outroText = this.add.text(width / 2, height / 2 - 64, 'Level completed', { fontSize: '32px', fill: '#eeeeee' });
+                outroText.anchor = new Phaser.Point(0.5, 0.5);
+                outroText.alpha = 0.0;
+                var tweenIn2 = this.game.add.tween(outroText).to({ alpha: 1.0 }, 2500, Phaser.Easing.Linear.None);
+                var tweenOut2 = this.game.add.tween(outroText).to({ alpha: 0.0 }, 2500, Phaser.Easing.Linear.None);
+                tweenIn2.chain(tweenOut2);
+                tweenIn2.start();
+                tweenOut2.onComplete.add(this.levelDone, this);
+                var tmp = this.game;
+                if (this.oldRank !== tmp.rankFromScore(tmp.score)) {
+                    var rankText = this.add.text(width / 2, height / 3 - 64, 'General Error says: You shift shape to a new rank. Well done!', { fontSize: '24px', fill: '#eeeeee' });
+                    rankText.anchor = new Phaser.Point(0.5, 0.5);
+                    rankText.alpha = 0.0;
+                    var tweenIn3 = this.game.add.tween(rankText).to({ alpha: 1.0 }, 1500, Phaser.Easing.Linear.None);
+                    var tweenOut3 = this.game.add.tween(rankText).to({ alpha: 0.0 }, 1500, Phaser.Easing.Linear.None);
+                    tweenIn3.chain(tweenOut3);
+                    tweenIn3.start();
+                }
+            }
+        };
+        Level2.prototype.levelDone = function () {
+            this.game.state.start("Level1", true, false);
+        };
+        Level2.prototype.render = function () {
+            /*            this.game.debug.cameraInfo(this.camera, 32, 32);
+                        this.game.debug.body(this.player.broom);
+                        this.game.debug.body(this.player);
+                        this.group.forEach((item) => {this.game.debug.body(item)}, this);
+            */
+        };
+        Level2.prototype.processHandler = function (broom, shoeprint) {
+            if (!this.player.isCleaning) {
+                return false;
+            }
+            var dx = this.player.x + broom.x - shoeprint.x;
+            var dy = this.player.y + broom.y - shoeprint.y;
+            var distance = dx * dx + dy * dy;
+            if (distance > 50 * 50) {
+                return false;
+            }
+            else {
+                return true;
+            }
+        };
+        Level2.prototype.collisionHandler = function (broom, shoeprint) {
+            if (this.player.isCleaning) {
+                if (shoeprint.alpha > 0.1) {
+                    shoeprint.alpha -= 0.1;
+                }
+                else {
+                    shoeprint.kill();
+                    var tmp = this.game;
+                    tmp.score += 10;
+                    this.scoreText.text = 'Score: ' + tmp.score;
+                }
+            }
+        };
+        Level2.prototype.soldierOut = function (soldier) {
+            //  Move the alien to the top of the screen again
+            // alien.reset(alien.x, -32);
+            //  And give it a new random velocity
+            //  alien.body.velocity.y = 50 + Math.random() * 200;
+            var b = 42;
+        };
+        return Level2;
+    }(Phaser.State));
+    Mordor.Level2 = Level2;
 })(Mordor || (Mordor = {}));
 /// <reference path="typescript/phaser.d.ts" />
 // python -m SimpleHTTPServer
@@ -545,6 +694,7 @@ var Mordor;
 /// <reference path="Preloader.ts" />
 /// <reference path="MainMenu.ts" />
 /// <reference path="Level1.ts" />
+/// <reference path="Level2.ts" />
 /// <reference path="Player.ts" />
 /// <reference path="Soldier.ts" />
 // python -m SimpleHTTPServer
