@@ -20,7 +20,7 @@ namespace Mordor {
             let y = 32;
             this.add.text(32, y, 'NATO SHAPE http://www.shape.nato.int/', { fontSize: '32px', fill: '#88aa77' });
             y += 36;
-            this.add.text(32, y, 'Supreme Headquartes Allied Powers Europe', { fontSize: '32px', fill: '#88aa77' });
+            this.add.text(32, y, 'Supreme Headquarters Allied Powers Europe', { fontSize: '32px', fill: '#88aa77' });
             y += 72;
             
             this.add.text(32,y, '- Welcome. I am General Error. Your new job starts today.', { fontSize: '16px', fill: '#88aa77' });
