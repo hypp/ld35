@@ -23,7 +23,7 @@ namespace Mordor {
             let corporalPunishment = new Mordor.Soldier(this.game, 'general2', this.world.width + 100, this.world.height - 200, this.group);
             corporalPunishment.setGoal(100, -100);
             let generalError = new Mordor.Soldier(this.game, 'generalerror', this.world.width + 100, 800, this.group);
-            generalError.setGoal(0 - 100, 1000);
+            generalError.setGoal(0 - 100, 100);
             
             this.setupLevelPart2('- The Hangar 18 Shift -');
                                     
