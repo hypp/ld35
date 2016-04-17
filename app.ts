@@ -4,6 +4,7 @@
 /// <reference path="Boot.ts" />
 /// <reference path="Preloader.ts" />
 /// <reference path="MainMenu.ts" />
+/// <reference path="LevelBase.ts" />
 /// <reference path="Level1.ts" />
 /// <reference path="Level2.ts" />
 /// <reference path="Level3.ts" />

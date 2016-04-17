@@ -10,13 +10,13 @@ namespace Mordor {
 
         rankFromScore(score: number) {
             let rank = 0;
-            if (score < 500) {
+            if (score < 750) {
                 // Private
                 rank = 0;
-            } else if (score < 1000) {
+            } else if (score < 1500) {
                 // general1
                 rank = 1;
-            } else if (score < 1500) {
+            } else if (score < 1750) {
                 // general2
                 rank = 2;
             } else {
