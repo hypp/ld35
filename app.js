@@ -215,7 +215,7 @@ var Mordor;
         LevelBase.prototype.tutorial = function () {
             var y = this.world.height - 100;
             var x = 200;
-            var tutFast = this.add.text(x, -40, 'General Error says: Move UP through hangar 18 as fast as possible', { fontSize: '16px', fill: '#eeeeee' });
+            var tutFast = this.add.text(x, -40, 'General Error says: Move UP through hangar 18 as FAST as possible', { fontSize: '16px', fill: '#eeeeee' });
             var fastTween = this.add.tween(tutFast).to({ y: y }, 2400, Phaser.Easing.Bounce.Out);
             y -= 250;
             var tutArrow = this.add.text(x, -40, 'General Error says: Press arrow keys to move', { fontSize: '16px', fill: '#eeeeee' });
@@ -227,7 +227,7 @@ var Mordor;
             var tutBack = this.add.text(x, -40, 'General Error says: You cannot move back', { fontSize: '16px', fill: '#eeeeee' });
             var backTween = this.add.tween(tutBack).to({ y: y }, 2400, Phaser.Easing.Bounce.Out);
             y -= 250;
-            var tutBroom = this.add.text(x, -40, 'General Error says: Press and hold spacebar to use your weapaon', { fontSize: '16px', fill: '#eeeeee' });
+            var tutBroom = this.add.text(x, -40, 'General Error says: Stand still and hold spacebar to use your weapaon', { fontSize: '16px', fill: '#eeeeee' });
             var broomTween = this.add.tween(tutBroom).to({ y: y }, 2400, Phaser.Easing.Bounce.Out);
             y -= 250;
             var tutClean = this.add.text(x, -40, 'General Error says: Clean up after the other soldiers', { fontSize: '16px', fill: '#eeeeee' });
@@ -505,6 +505,7 @@ var Mordor;
             this.sopa2.volume = 0.05;
             this.isStopped = false;
         }
+        // TODO Rewrite
         Player.prototype.update = function () {
             if (this.displayName !== null) {
                 this.displayName.x = this.x - this.displayName.width / 2;
@@ -514,6 +515,7 @@ var Mordor;
             this.body.velocity.y = 0;
             this.game.world.setBounds(0, 0, 800, this.game.camera.y + 600);
             if (!this.animations.currentAnim.isPlaying) {
+                this.animations.frame = 0;
             }
             switch (this.animations.frame) {
                 case 1:
@@ -526,50 +528,63 @@ var Mordor;
                     this.broom.y = -4;
                     break;
             }
-            if (this.isStopped !== true) {
+            if (this.isStopped === true) {
+                this.animations.currentAnim.stop();
+                return;
+            }
+            var isMoving = this.game.input.keyboard.isDown(Phaser.Keyboard.LEFT) ||
+                this.game.input.keyboard.isDown(Phaser.Keyboard.RIGHT) ||
+                this.game.input.keyboard.isDown(Phaser.Keyboard.UP) ||
+                this.game.input.keyboard.isDown(Phaser.Keyboard.DOWN);
+            if (isMoving === false || isMoving === null) {
+                // We are not walking
+                this.animations.stop("walk");
+                // We can only use the broom if we are standing still
                 if (this.game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)) {
-                    this.animations.stop("walk");
-                    this.animations.play("broom");
-                    this.isCleaning = true;
-                    if (this.sopa1.isPlaying === false && this.sopa2.isPlaying === false) {
-                        if (this.game.rnd.between(0, 1) === 0) {
-                            this.sopa1.play();
-                        }
-                        else {
-                            this.sopa2.play();
+                    if (this.isCleaning === false) {
+                        this.isCleaning = true;
+                        this.animations.play("broom");
+                        if (this.sopa1.isPlaying === false && this.sopa2.isPlaying === false) {
+                            if (this.game.rnd.between(0, 1) === 0) {
+                                this.sopa1.play();
+                            }
+                            else {
+                                this.sopa2.play();
+                            }
                         }
                     }
-                    return;
                 }
                 else {
-                    this.animations.stop("broom");
                     this.isCleaning = false;
+                    this.animations.stop("broom");
                 }
+            }
+            else {
+                // We are walking!
+                this.animations.play("walk");
+                // Which means that we are not cleaning
+                this.isCleaning = false;
+                this.animations.stop("broom");
+                // Left or right                    
                 if (this.game.input.keyboard.isDown(Phaser.Keyboard.LEFT)) {
                     this.body.velocity.x = -150;
                 }
                 else if (this.game.input.keyboard.isDown(Phaser.Keyboard.RIGHT)) {
                     this.body.velocity.x = 150;
                 }
+                // Up or down                    
                 if (this.game.input.keyboard.isDown(Phaser.Keyboard.UP)) {
                     this.body.velocity.y = -150;
-                    this.animations.play("walk");
                 }
                 else if (this.game.input.keyboard.isDown(Phaser.Keyboard.DOWN)) {
+                    // But not to far down
                     if (this.body.y < this.game.camera.bounds.bottom) {
                         this.body.velocity.y = 150;
-                        this.animations.play("walk");
                     }
                 }
-            }
-            if (this.body.velocity.x === 0 && this.body.velocity.y === 0) {
-                this.animations.stop("walk");
-            }
-            else {
-                this.animations.play("walk");
                 this.rotation = 90 * (Math.PI / 180) + Math.atan2(this.body.velocity.y, this.body.velocity.x);
-            }
-        };
+            } // else isMoving
+        }; // update
         Player.prototype.stop = function () {
             this.isStopped = true;
         };

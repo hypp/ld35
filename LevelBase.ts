@@ -21,7 +21,7 @@ namespace Mordor {
         tutorial() {
             let y = this.world.height - 100;
             let x = 200;
-            let tutFast = this.add.text(x, -40, 'General Error says: Move UP through hangar 18 as fast as possible', { fontSize: '16px', fill: '#eeeeee' });
+            let tutFast = this.add.text(x, -40, 'General Error says: Move UP through hangar 18 as FAST as possible', { fontSize: '16px', fill: '#eeeeee' });
             let fastTween = this.add.tween(tutFast).to( { y: y }, 2400, Phaser.Easing.Bounce.Out);
             y -= 250;
             let tutArrow = this.add.text(x, -40, 'General Error says: Press arrow keys to move', { fontSize: '16px', fill: '#eeeeee' });
@@ -33,7 +33,7 @@ namespace Mordor {
             let tutBack = this.add.text(x, -40, 'General Error says: You cannot move back', { fontSize: '16px', fill: '#eeeeee' });
             let backTween = this.add.tween(tutBack).to( { y: y }, 2400, Phaser.Easing.Bounce.Out);
             y -= 250;
-            let tutBroom = this.add.text(x, -40, 'General Error says: Press and hold spacebar to use your weapaon', { fontSize: '16px', fill: '#eeeeee' });
+            let tutBroom = this.add.text(x, -40, 'General Error says: Stand still and hold spacebar to use your weapaon', { fontSize: '16px', fill: '#eeeeee' });
             let broomTween = this.add.tween(tutBroom).to( { y: y }, 2400, Phaser.Easing.Bounce.Out);
             y -= 250;
             let tutClean = this.add.text(x, -40, 'General Error says: Clean up after the other soldiers', { fontSize: '16px', fill: '#eeeeee' });

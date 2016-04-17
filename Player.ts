@@ -46,6 +46,7 @@ namespace Mordor {
             this.isStopped = false;  
         }
 
+        // TODO Rewrite
         update() {
             if (this.displayName !== null) {
                 this.displayName.x = this.x - this.displayName.width / 2;
@@ -73,53 +74,66 @@ namespace Mordor {
                     break;
             }
             
-            if (this.isStopped !== true) {
+            if (this.isStopped === true) {
+                this.animations.currentAnim.stop();
+                return;
+            }
+            
+            let isMoving = this.game.input.keyboard.isDown(Phaser.Keyboard.LEFT) ||
+                            this.game.input.keyboard.isDown(Phaser.Keyboard.RIGHT) ||
+                            this.game.input.keyboard.isDown(Phaser.Keyboard.UP) || 
+                            this.game.input.keyboard.isDown(Phaser.Keyboard.DOWN);
+            
+            if (isMoving === false || isMoving === null) {
+                // We are not walking
+                this.animations.stop("walk");
+                
+                // We can only use the broom if we are standing still
                 if (this.game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)) {
-                    this.animations.stop("walk");
-                    this.animations.play("broom");
-                    this.isCleaning = true;
-                    if (this.sopa1.isPlaying === false && this.sopa2.isPlaying === false) {
-                        if (this.game.rnd.between(0,1) === 0) {
-                            this.sopa1.play();
-                        } else {
-                            this.sopa2.play();
+                    if (this.isCleaning === false) {
+                        this.isCleaning = true;
+                        this.animations.play("broom");
+                        if (this.sopa1.isPlaying === false && this.sopa2.isPlaying === false) {
+                            if (this.game.rnd.between(0,1) === 0) {
+                                this.sopa1.play();
+                            } else {
+                                this.sopa2.play();
+                            }
                         }
                     }
-                    return;
                 } else {
-                    this.animations.stop("broom");
                     this.isCleaning = false;
-                }
-                
+                    this.animations.stop("broom");
+                }    
+            } else {
+                // We are walking!
+                this.animations.play("walk");
+                // Which means that we are not cleaning
+                this.isCleaning = false;
+                this.animations.stop("broom");
+
+                // Left or right                    
                 if (this.game.input.keyboard.isDown(Phaser.Keyboard.LEFT)) {
                     this.body.velocity.x = -150;
                 }
                 else if (this.game.input.keyboard.isDown(Phaser.Keyboard.RIGHT)) {
                     this.body.velocity.x = 150;
                 }
-                            
+
+                // Up or down                    
                 if (this.game.input.keyboard.isDown(Phaser.Keyboard.UP)) {
 
                     this.body.velocity.y = -150;
-                    this.animations.play("walk");
                 }
                 else if (this.game.input.keyboard.isDown(Phaser.Keyboard.DOWN)) {
+                    // But not to far down
                     if (this.body.y < this.game.camera.bounds.bottom) {
                         this.body.velocity.y = 150;
-                        this.animations.play("walk");                    
                     }
-
                 }
-            }
-            
-            if (this.body.velocity.x === 0 && this.body.velocity.y === 0) {
-                this.animations.stop("walk");
-                this.animations.frame = 0;
-            } else {
-                this.animations.play("walk");
                 this.rotation = 90 * (Math.PI / 180) + Math.atan2(this.body.velocity.y, this.body.velocity.x);
-            }
-        }
+            } // else isMoving
+        } // update
         
         stop() {
             this.isStopped = true;
