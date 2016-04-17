@@ -5,7 +5,7 @@
 
 namespace Mordor {
 
-    export class Level2 extends Phaser.State {
+    export class Level3 extends Phaser.State {
         
         map: Phaser.Tilemap
         layer: Phaser.TilemapLayer
@@ -17,7 +17,6 @@ namespace Mordor {
         doneSound: Phaser.Sound
 
         create() {
-            // TODO Merge all common functionality into one class
             let width = 800;
             let height = 600;
             
@@ -28,14 +27,15 @@ namespace Mordor {
 
             this.map = this.add.tilemap('level1');
             this.map.addTilesetImage('Floortiles');
-            this.layer = this.map.createLayer('Outdoor');
+            this.layer = this.map.createLayer('Jungle');
             this.layer.resizeWorld();
             
             this.camera.y = this.world.height;
 
             this.group = this.add.physicsGroup(Phaser.Physics.ARCADE);
             
-            let tmp = <Mordor.Game>this.game;
+            
+            let tmp = <Mordor.Game>this.game;      
             this.oldRank = tmp.rankFromScore(tmp.score);
             let rank = tmp.rankFromScore(tmp.score);
             
@@ -58,29 +58,26 @@ namespace Mordor {
             
             this.camera.follow(this.player, Phaser.Camera.FOLLOW_LOCKON);
          
-         
-            let privateParts = new Mordor.Soldier(this.game, 'player', this.world.width, this.world.height + 100, this.group);
-            privateParts.setGoal(0, -100);
-            let privateDetective = new Mordor.Soldier(this.game, 'player', 0, this.world.height + 100, this.group);
-            privateDetective.setGoal(this.world.width, -100);
-            let privateEye = new Mordor.Soldier(this.game, 'player', this.world.width / 2, this.world.height + 100, this.group);
-            privateEye.setGoal(this.world.width / 2 - 64, -100);
+            let privateParts = new Mordor.Soldier(this.game, 'player', -100, this.world.height - 200, this.group);
+            privateParts.setGoal(this.world.width+100, this.world.height - 200);
+            let privateDetective = new Mordor.Soldier(this.game, 'player', this.world.width / 2, this.world.height + 100, this.group);
+            privateDetective.setGoal(this.world.width / 2, 0 - 100);
+            let privateEye = new Mordor.Soldier(this.game, 'player', this.world.width + 100, this.world.height / 2, this.group);
+            privateEye.setGoal(0 - 100, this.world.height / 2 - 100);
             
-            let majorFailure = new Mordor.Soldier(this.game, 'general1', -100, (this.world.height / 3) * 2, this.group);
-            majorFailure.setGoal(this.world.width + 100, (this.world.height / 3) * 1);
-            let corporalPunishment = new Mordor.Soldier(this.game, 'general2', this.world.width + 100, (this.world.height / 3) * 1, this.group);
-            corporalPunishment.setGoal(-100, (this.world.height / 3) * 2);
-            let generalError = new Mordor.Soldier(this.game, 'generalerror', this.world.width + 100, this.world.height / 2 - 100, this.group);
-            generalError.setGoal(-100, this.world.height / 2 + 100);
-                    
-                    
+            let majorFailure = new Mordor.Soldier(this.game, 'general1', 100, -100, this.group);
+            majorFailure.setGoal(150, this.world.height + 100);
+            let corporalPunishment = new Mordor.Soldier(this.game, 'general2', this.world.width + 100, this.world.height - 200, this.group);
+            corporalPunishment.setGoal(100, -100);
+            let generalError = new Mordor.Soldier(this.game, 'generalerror', this.world.width + 100, 800, this.group);
+            generalError.setGoal(0 - 100, 1000);
                                     
             this.scoreText = this.add.text(200, 500, 'score: 0', { fontSize: '32px', fill: '#000' });
             this.scoreText.text = 'Score: ' + tmp.score;                                    
             this.scoreText.fixedToCamera = true;
             this.scoreText.cameraOffset.setTo(50, height - 50);
             
-            let introText = this.add.text(width / 2, this.world.height - height / 2, '- The Excersice Yard -', { fontSize: '32px', fill: '#eeeeee' });
+            let introText = this.add.text(width / 2, this.world.height - height / 2, '- The Jungle Battle -', { fontSize: '32px', fill: '#eeeeee' });
             introText.anchor = new Phaser.Point(0.5, 0.5);
             introText.alpha = 0.0;
             let tweenIn = this.game.add.tween(introText).to({ alpha: 1.0 }, 1500, Phaser.Easing.Linear.None);            
@@ -129,12 +126,13 @@ namespace Mordor {
                     let tweenOut3 = this.game.add.tween(rankText).to({ alpha: 0.0 }, 1500, Phaser.Easing.Linear.None);            
                     tweenIn3.chain(tweenOut3);
                     tweenIn3.start();
+                    
                 }
             }
         }
         
         levelDone() {
-            this.game.state.start("Level3", true, false);
+            this.game.state.start("Level1", true, false);
         }
 
         render() {

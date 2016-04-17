@@ -14,6 +14,7 @@ namespace Mordor {
         scoreText: Phaser.Text
         isLevelDone: boolean
         oldRank: number
+        doneSound: Phaser.Sound
 
         tutorial() {
             let y = this.world.height - 100;
@@ -118,7 +119,7 @@ namespace Mordor {
             this.scoreText.fixedToCamera = true;
             this.scoreText.cameraOffset.setTo(50, height - 50);
             
-            let introText = this.add.text(width / 2, this.world.height - height / 2, 'Level 1 - The Hangar', { fontSize: '32px', fill: '#eeeeee' });
+            let introText = this.add.text(width / 2, this.world.height - height / 2, '- The Hangar -', { fontSize: '32px', fill: '#eeeeee' });
             introText.anchor = new Phaser.Point(0.5, 0.5);
             introText.alpha = 0.0;
             let tweenIn = this.game.add.tween(introText).to({ alpha: 1.0 }, 1500, Phaser.Easing.Linear.None);            
@@ -126,8 +127,8 @@ namespace Mordor {
             tweenIn.chain(tweenOut);
             tweenIn.start();
             
-  
-            
+            this.doneSound = this.game.add.audio('levelcomplete');
+            this.doneSound.volume = 1.0;           
         }
 
         update() {
@@ -156,6 +157,7 @@ namespace Mordor {
                 tweenIn2.chain(tweenOut2);
                 tweenIn2.start();
                 tweenOut2.onComplete.add(this.levelDone, this);
+                this.doneSound.play();
                 
                 let tmp = <Mordor.Game>this.game;
                 if (this.oldRank !== tmp.rankFromScore(tmp.score)) {
@@ -166,6 +168,7 @@ namespace Mordor {
                     let tweenOut3 = this.game.add.tween(rankText).to({ alpha: 0.0 }, 1500, Phaser.Easing.Linear.None);            
                     tweenIn3.chain(tweenOut3);
                     tweenIn3.start();
+                    
                 }
             }
         }
